@@ -464,6 +464,15 @@
                 <button class="btn btn-danger" onclick="checkOut()">
                     🏠 퇴근하기
                 </button>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="openLeaveModal('반차')">
+                        🕐 반차
+                    </button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="openLeaveModal('연차')">
+                        🌴 연차
+                    </button>
+                </div>
             </div>
             
             <!-- 통계 탭 -->
@@ -535,6 +544,23 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeEditModal()">취소</button>
                 <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 반차/연차 모달 -->
+    <div id="leaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="leaveModalTitle">📅 날짜 선택</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label id="leaveTypeLabel">반차 날짜 선택</label>
+                    <input type="date" id="leaveDate" class="time-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeLeaveModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveLeave()">저장</button>
             </div>
         </div>
     </div>
@@ -831,7 +857,7 @@
             
             // 최근 10개 기록 표시
             let html = '<div class="table-container"><table class="records-table"><thead><tr>';
-            html += '<th>날짜</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>수정</th>';
+            html += '<th>날짜</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>비고</th><th>수정</th>';
             html += '</tr></thead><tbody>';
             
             records.slice(-10).reverse().forEach(record => {
@@ -840,6 +866,7 @@
                     <td>${record.checkIn || '-'}</td>
                     <td>${record.checkOut || '-'}</td>
                     <td>${record.workHours || '-'}</td>
+                    <td>${record.note || '-'}</td>
                     <td><button class="btn-edit" onclick='openEditModal(${JSON.stringify(record)})'>수정</button></td>
                 </tr>`;
             });
@@ -930,6 +957,78 @@
                 closeEditModal();
             }
         });
+        
+        document.getElementById('leaveModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLeaveModal();
+            }
+        });
+        
+        // 반차/연차 모달
+        let currentLeaveType = '';
+        
+        function openLeaveModal(type) {
+            if (!userData.name || !userData.sheetUrl) {
+                alert('설정 탭에서 이름과 URL을 먼저 설정해주세요!');
+                showTab('settings');
+                return;
+            }
+            
+            currentLeaveType = type;
+            document.getElementById('leaveModalTitle').textContent = type === '반차' ? '🕐 반차 신청' : '🌴 연차 신청';
+            document.getElementById('leaveTypeLabel').textContent = `${type} 날짜 선택`;
+            
+            // 오늘 날짜를 기본값으로 설정
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('leaveDate').value = today;
+            
+            document.getElementById('leaveModal').classList.add('active');
+        }
+        
+        function closeLeaveModal() {
+            document.getElementById('leaveModal').classList.remove('active');
+        }
+        
+        async function saveLeave() {
+            const dateInput = document.getElementById('leaveDate').value;
+            if (!dateInput) {
+                alert('날짜를 선택해주세요!');
+                return;
+            }
+            
+            // 날짜를 요일 포함 형식으로 변환
+            const selectedDate = new Date(dateInput + 'T00:00:00');
+            const formattedDate = formatDate(selectedDate);
+            
+            // 반차: 4시간, 연차: 8시간
+            const workHours = currentLeaveType === '반차' ? '4시간 0분' : '8시간 0분';
+            const note = currentLeaveType;
+            
+            try {
+                await fetch(userData.sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userName: userData.name,
+                        date: formattedDate,
+                        checkIn: '-',
+                        checkOut: '-',
+                        workHours: workHours,
+                        note: note
+                    })
+                });
+                
+                alert(`${currentLeaveType} 신청 완료!\n날짜: ${formattedDate}\n근무시간: ${workHours}`);
+                closeLeaveModal();
+                
+                // 기록 새로고침
+                setTimeout(loadRecords, 1000);
+            } catch (error) {
+                alert('신청 중 오류가 발생했습니다.');
+                console.error(error);
+            }
+        }
     </script>
 </body>
 </html>
