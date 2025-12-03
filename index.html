@@ -221,27 +221,52 @@
             font-weight: bold;
         }
         
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 20px;
+        }
+        
         .records-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            min-width: 500px;
         }
         
         .records-table th {
             background: #f5f5f5;
-            padding: 12px;
-            text-align: left;
+            padding: 10px 8px;
+            text-align: center;
             font-weight: bold;
             border-bottom: 2px solid #ddd;
+            font-size: 14px;
         }
         
         .records-table td {
-            padding: 12px;
+            padding: 10px 8px;
             border-bottom: 1px solid #eee;
+            text-align: center;
+            font-size: 13px;
         }
         
         .records-table tr:hover {
             background: #f9f9f9;
+        }
+        
+        @media (max-width: 600px) {
+            .records-table {
+                font-size: 12px;
+            }
+            
+            .records-table th,
+            .records-table td {
+                padding: 8px 4px;
+            }
+            
+            .btn-edit {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
         }
         
         .helper-text {
@@ -457,7 +482,7 @@
 
     <script>
         // ⚠️ 관리자: 여기에 배포한 웹 앱 URL을 넣으세요 (선택사항)
-        const DEFAULT_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzpg619vhENQlKN8O0Y3auDrMXLx7dTLADKTuvZ4936IRhvq3vS2qp9kfDreqP_sJJFzA/exec';  // 예: 'https://script.google.com/macros/s/...'
+        const DEFAULT_SHEET_URL = '';  // 예: 'https://script.google.com/macros/s/...'
         
         let userData = {
             name: '',
@@ -746,7 +771,7 @@
             document.getElementById('weeklyHours').textContent = `${weeklyHours}시간 ${weeklyMins}분`;
             
             // 최근 10개 기록 표시
-            let html = '<table class="records-table"><thead><tr>';
+            let html = '<div class="table-container"><table class="records-table"><thead><tr>';
             html += '<th>날짜</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>수정</th>';
             html += '</tr></thead><tbody>';
             
@@ -760,7 +785,7 @@
                 </tr>`;
             });
             
-            html += '</tbody></table>';
+            html += '</tbody></table></div>';
             recordsList.innerHTML = html;
             
             // 오늘 상태 업데이트
