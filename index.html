@@ -1007,9 +1007,39 @@
             const selectedDate = new Date(dateInput + 'T00:00:00');
             const formattedDate = formatDate(selectedDate);
             
-            // 반차: 4시간, 연차: 8시간
-            const workHours = currentLeaveType === '반차' ? '4시간 0분' : '8시간 0분';
-            const note = currentLeaveType;
+            // 해당 날짜의 기존 기록 확인
+            const records = await loadRecordsData();
+            const existingRecord = records.find(r => r.date === formattedDate);
+            
+            let workHours, checkIn, checkOut, note;
+            
+            // 추가 시간 (반차: 4시간, 연차: 8시간)
+            const additionalMinutes = currentLeaveType === '반차' ? 240 : 480;
+            
+            if (existingRecord && existingRecord.workHours) {
+                // 기존 근무시간 파싱
+                const match = existingRecord.workHours.match(/(\d+)시간 (\d+)분/);
+                if (match) {
+                    const existingMinutes = parseInt(match[1]) * 60 + parseInt(match[2]);
+                    const totalMinutes = existingMinutes + additionalMinutes;
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    workHours = `${hours}시간 ${minutes}분`;
+                } else {
+                    const hours = Math.floor(additionalMinutes / 60);
+                    workHours = `${hours}시간 0분`;
+                }
+                checkIn = existingRecord.checkIn || '-';
+                checkOut = existingRecord.checkOut || '-';
+            } else {
+                // 기존 기록이 없으면 반차/연차 시간만
+                const hours = Math.floor(additionalMinutes / 60);
+                workHours = `${hours}시간 0분`;
+                checkIn = '-';
+                checkOut = '-';
+            }
+            
+            note = currentLeaveType;
             
             try {
                 await fetch(userData.sheetUrl, {
@@ -1019,8 +1049,8 @@
                     body: JSON.stringify({
                         userName: userData.name,
                         date: formattedDate,
-                        checkIn: '-',
-                        checkOut: '-',
+                        checkIn: checkIn,
+                        checkOut: checkOut,
                         workHours: workHours,
                         note: note
                     })
