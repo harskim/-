@@ -1011,10 +1011,9 @@
             const records = await loadRecordsData();
             const existingRecord = records.find(r => r.date === formattedDate);
             
-            let workHours, checkIn, checkOut, note;
-            
             // 추가 시간 (반차: 4시간, 연차: 8시간)
             const additionalMinutes = currentLeaveType === '반차' ? 240 : 480;
+            let workHours;
             
             if (existingRecord && existingRecord.workHours) {
                 // 기존 근무시간 파싱
@@ -1029,19 +1028,14 @@
                     const hours = Math.floor(additionalMinutes / 60);
                     workHours = `${hours}시간 0분`;
                 }
-                checkIn = existingRecord.checkIn || '-';
-                checkOut = existingRecord.checkOut || '-';
             } else {
                 // 기존 기록이 없으면 반차/연차 시간만
                 const hours = Math.floor(additionalMinutes / 60);
                 workHours = `${hours}시간 0분`;
-                checkIn = '-';
-                checkOut = '-';
             }
             
-            note = currentLeaveType;
-            
             try {
+                // 근무시간과 비고만 업데이트 (출퇴근 시간은 건드리지 않음)
                 await fetch(userData.sheetUrl, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -1049,14 +1043,12 @@
                     body: JSON.stringify({
                         userName: userData.name,
                         date: formattedDate,
-                        checkIn: checkIn,
-                        checkOut: checkOut,
                         workHours: workHours,
-                        note: note
+                        note: currentLeaveType
                     })
                 });
                 
-                alert(`${currentLeaveType} 신청 완료!\n날짜: ${formattedDate}\n근무시간: ${workHours}`);
+                alert(`${currentLeaveType} 신청 완료!\n날짜: ${formattedDate}\n추가 근무시간: ${workHours}`);
                 closeLeaveModal();
                 
                 // 기록 새로고침
