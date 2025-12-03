@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>출퇴근 기록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .user-info {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .setup-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            font-size: 14px;
+            padding: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .clock {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+        
+        .clock-time {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .clock-date {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-title {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stats-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .records-table th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .records-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .records-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .helper-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-footer button {
+            flex: 1;
+        }
+        
+        .time-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        .time-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 출퇴근 기록</h1>
+            <div class="user-info" id="userInfo">설정을 완료해주세요</div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('attendance')">출퇴근</button>
+            <button class="tab" onclick="showTab('stats')">통계</button>
+            <button class="tab" onclick="showTab('settings')">설정</button>
+        </div>
+        
+        <div class="content">
+            <!-- 출퇴근 탭 -->
+            <div id="attendance" class="tab-content active">
+                <div class="clock">
+                    <div class="clock-time" id="currentTime">00:00:00</div>
+                    <div class="clock-date" id="currentDate">0000년 00월 00일 (월)</div>
+                </div>
+                
+                <div id="todayStatus" class="status status-info">
+                    오늘의 출퇴근 기록이 없습니다
+                </div>
+                
+                <button class="btn btn-success" onclick="checkIn()">
+                    ✅ 출근하기
+                </button>
+                <button class="btn btn-danger" onclick="checkOut()">
+                    🏠 퇴근하기
+                </button>
+            </div>
+            
+            <!-- 통계 탭 -->
+            <div id="stats" class="tab-content">
+                <div class="stats-card">
+                    <div class="stats-title">이번 주 총 근무시간</div>
+                    <div class="stats-value" id="weeklyHours">0시간</div>
+                </div>
+                
+                <h3 style="margin-bottom: 15px;">📊 최근 출퇴근 기록</h3>
+                <div id="recordsList" class="loading">기록을 불러오는 중...</div>
+            </div>
+            
+            <!-- 설정 탭 -->
+            <div id="settings" class="tab-content">
+                <div class="setup-form">
+                    <div class="alert alert-info">
+                        <strong>ℹ️ 안내</strong><br>
+                        처음 사용 시 이름과 관리자에게 받은 URL을 입력해주세요.<br>
+                        입력한 이름으로 자동으로 시트가 생성됩니다.
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>이름 (시트 이름으로 사용됨)</label>
+                        <input type="text" id="userName" placeholder="홍길동">
+                        <div class="helper-text">
+                            Google Sheets에 이 이름으로 시트가 자동 생성됩니다
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Google Apps Script 웹 앱 URL</label>
+                        <input type="url" id="sheetUrl" placeholder="https://script.google.com/macros/s/...">
+                        <div class="helper-text">
+                            관리자에게 받은 웹 앱 URL을 입력하세요 (한 번만 입력)
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        💾 설정 저장
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="clearSettings()">
+                        🗑️ 설정 초기화
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 수정 모달 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">⏰ 출퇴근 시간 수정</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>날짜</label>
+                    <input type="text" id="editDate" readonly style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label>출근 시간</label>
+                    <input type="time" id="editCheckIn" class="time-input">
+                </div>
+                <div class="form-group">
+                    <label>퇴근 시간</label>
+                    <input type="time" id="editCheckOut" class="time-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ 관리자: 여기에 배포한 웹 앱 URL을 넣으세요 (선택사항)
+        const DEFAULT_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzpg619vhENQlKN8O0Y3auDrMXLx7dTLADKTuvZ4936IRhvq3vS2qp9kfDreqP_sJJFzA/exec';  // 예: 'https://script.google.com/macros/s/...'
+        
+        let userData = {
+            name: '',
+            sheetUrl: DEFAULT_SHEET_URL
+        };
+        
+        // 설정 불러오기
+        function loadSettings() {
+            const saved = localStorage.getItem('attendanceSettings');
+            if (saved) {
+                userData = JSON.parse(saved);
+                document.getElementById('userName').value = userData.name;
+                document.getElementById('sheetUrl').value = userData.sheetUrl;
+                document.getElementById('userInfo').textContent = `${userData.name}님 환영합니다!`;
+                loadRecords();
+            }
+            
+            // DEFAULT_SHEET_URL이 설정되어 있으면 자동으로 채우기
+            if (DEFAULT_SHEET_URL && !userData.sheetUrl) {
+                document.getElementById('sheetUrl').value = DEFAULT_SHEET_URL;
+            }
+        }
+        
+        // 설정 저장
+        function saveSettings() {
+            const name = document.getElementById('userName').value.trim();
+            let sheetUrl = document.getElementById('sheetUrl').value.trim();
+            
+            if (!name) {
+                alert('이름을 입력해주세요!');
+                return;
+            }
+            
+            if (!sheetUrl) {
+                if (DEFAULT_SHEET_URL) {
+                    sheetUrl = DEFAULT_SHEET_URL;
+                } else {
+                    alert('Google Apps Script URL을 입력해주세요!');
+                    return;
+                }
+            }
+            
+            userData = { name, sheetUrl };
+            localStorage.setItem('attendanceSettings', JSON.stringify(userData));
+            document.getElementById('userInfo').textContent = `${name}님 환영합니다!`;
+            alert(`설정이 저장되었습니다!\n\n"${name}" 시트가 자동으로 생성됩니다.`);
+            showTab('attendance');
+            loadRecords();
+        }
+        
+        // 설정 초기화
+        function clearSettings() {
+            if (confirm('모든 설정을 초기화하시겠습니까?')) {
+                localStorage.removeItem('attendanceSettings');
+                userData = { name: '', sheetUrl: DEFAULT_SHEET_URL };
+                document.getElementById('userName').value = '';
+                document.getElementById('sheetUrl').value = DEFAULT_SHEET_URL;
+                document.getElementById('userInfo').textContent = '설정을 완료해주세요';
+                alert('설정이 초기화되었습니다.');
+            }
+        }
+        
+        // 현재 시간 업데이트
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ko-KR', { hour12: false });
+            const dateStr = now.toLocaleDateString('ko-KR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long' 
+            });
+            
+            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('currentDate').textContent = dateStr;
+        }
+        
+        // 탭 전환
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'stats') {
+                loadRecords();
+            }
+        }
+        
+        // 날짜 포맷 (요일 포함)
+        function formatDate(date) {
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dayOfWeek = days[date.getDay()];
+            return `${year}-${month}-${day}(${dayOfWeek})`;
+        }
+        
+        // 근무시간 계산 (점심시간 제외)
+        function calculateWorkHours(checkIn, checkOut) {
+            if (!checkIn || !checkOut) return '';
+            
+            const [inH, inM] = checkIn.split(':').map(Number);
+            const [outH, outM] = checkOut.split(':').map(Number);
+            
+            let totalMinutes = (outH * 60 + outM) - (inH * 60 + inM);
+            
+            // 점심시간 11:20~12:20 제외
+            const lunchStart = 11 * 60 + 20;
+            const lunchEnd = 12 * 60 + 20;
+            const checkInMinutes = inH * 60 + inM;
+            const checkOutMinutes = outH * 60 + outM;
+            
+            if (checkInMinutes < lunchEnd && checkOutMinutes > lunchStart) {
+                totalMinutes -= 60;
+            }
+            
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            return `${hours}시간 ${minutes}분`;
+        }
+        
+        // 출근
+        async function checkIn() {
+            if (!userData.name || !userData.sheetUrl) {
+                alert('설정 탭에서 이름과 URL을 먼저 설정해주세요!');
+                showTab('settings');
+                return;
+            }
+            
+            const now = new Date();
+            const date = formatDate(now);
+            const time = now.toTimeString().slice(0, 5);
+            
+            try {
+                await fetch(userData.sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userName: userData.name,
+                        date: date,
+                        checkIn: time,
+                        checkOut: '',
+                        workHours: ''
+                    })
+                });
+                
+                alert(`출근 기록 완료!\n시간: ${time}`);
+                updateTodayStatus(date, time, '', '');
+                
+                // 즉시 기록 새로고침
+                setTimeout(loadRecords, 1000);
+            } catch (error) {
+                alert('출근 기록 중 오류가 발생했습니다.');
+                console.error(error);
+            }
+        }
+        
+        // 퇴근
+        async function checkOut() {
+            if (!userData.name || !userData.sheetUrl) {
+                alert('설정 탭에서 이름과 URL을 먼저 설정해주세요!');
+                showTab('settings');
+                return;
+            }
+            
+            const now = new Date();
+            const date = formatDate(now);
+            const time = now.toTimeString().slice(0, 5);
+            
+            // 오늘 출근 시간 가져오기
+            const records = await loadRecordsData();
+            const todayRecord = records.find(r => r.date === date);
+            
+            if (!todayRecord || !todayRecord.checkIn) {
+                alert('출근 기록이 없습니다. 먼저 출근해주세요!');
+                return;
+            }
+            
+            const workHours = calculateWorkHours(todayRecord.checkIn, time);
+            
+            try {
+                await fetch(userData.sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userName: userData.name,
+                        date: date,
+                        checkIn: todayRecord.checkIn,
+                        checkOut: time,
+                        workHours: workHours
+                    })
+                });
+                
+                alert(`퇴근 기록 완료!\n시간: ${time}\n근무시간: ${workHours}`);
+                updateTodayStatus(date, todayRecord.checkIn, time, workHours);
+                
+                // 즉시 기록 새로고침
+                setTimeout(loadRecords, 1000);
+            } catch (error) {
+                alert('퇴근 기록 중 오류가 발생했습니다.');
+                console.error(error);
+            }
+        }
+        
+        // 오늘 상태 업데이트
+        function updateTodayStatus(date, checkIn, checkOut, workHours) {
+            const statusDiv = document.getElementById('todayStatus');
+            
+            if (checkIn && checkOut) {
+                statusDiv.className = 'status status-success';
+                statusDiv.innerHTML = `
+                    <strong>오늘 (${date})</strong><br>
+                    출근: ${checkIn} | 퇴근: ${checkOut}<br>
+                    근무시간: ${workHours}
+                `;
+            } else if (checkIn) {
+                statusDiv.className = 'status status-info';
+                statusDiv.innerHTML = `
+                    <strong>오늘 (${date})</strong><br>
+                    출근: ${checkIn} | 퇴근 전
+                `;
+            }
+        }
+        
+        // 기록 데이터 불러오기
+        async function loadRecordsData() {
+            if (!userData.name || !userData.sheetUrl) return [];
+            
+            try {
+                const url = `${userData.sheetUrl}?userName=${encodeURIComponent(userData.name)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.success ? data.data : [];
+            } catch (error) {
+                console.error('기록 불러오기 실패:', error);
+                return [];
+            }
+        }
+        
+        // 기록 표시
+        async function loadRecords() {
+            if (!userData.name || !userData.sheetUrl) {
+                document.getElementById('recordsList').innerHTML = '<p style="text-align: center; color: #999;">설정을 먼저 완료해주세요.</p>';
+                return;
+            }
+            
+            const recordsList = document.getElementById('recordsList');
+            recordsList.innerHTML = '<div class="loading">기록을 불러오는 중...</div>';
+            
+            const records = await loadRecordsData();
+            
+            if (records.length === 0) {
+                recordsList.innerHTML = '<p style="text-align: center; color: #999;">아직 기록이 없습니다.</p>';
+                document.getElementById('weeklyHours').textContent = '0시간';
+                return;
+            }
+            
+            // 이번 주 근무시간 계산
+            const today = new Date();
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            
+            let weeklyMinutes = 0;
+            records.forEach(record => {
+                try {
+                    const recordDate = new Date(record.date.split('(')[0]);
+                    if (recordDate >= weekStart && record.workHours) {
+                        const match = record.workHours.match(/(\d+)시간 (\d+)분/);
+                        if (match) {
+                            weeklyMinutes += parseInt(match[1]) * 60 + parseInt(match[2]);
+                        }
+                    }
+                } catch (e) {
+                    console.error('날짜 파싱 오류:', e);
+                }
+            });
+            
+            const weeklyHours = Math.floor(weeklyMinutes / 60);
+            const weeklyMins = weeklyMinutes % 60;
+            document.getElementById('weeklyHours').textContent = `${weeklyHours}시간 ${weeklyMins}분`;
+            
+            // 최근 10개 기록 표시
+            let html = '<table class="records-table"><thead><tr>';
+            html += '<th>날짜</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>수정</th>';
+            html += '</tr></thead><tbody>';
+            
+            records.slice(-10).reverse().forEach(record => {
+                html += `<tr>
+                    <td>${record.date || '-'}</td>
+                    <td>${record.checkIn || '-'}</td>
+                    <td>${record.checkOut || '-'}</td>
+                    <td>${record.workHours || '-'}</td>
+                    <td><button class="btn-edit" onclick='openEditModal(${JSON.stringify(record)})'>수정</button></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            recordsList.innerHTML = html;
+            
+            // 오늘 상태 업데이트
+            const todayDate = formatDate(today);
+            const todayRecord = records.find(r => r.date === todayDate);
+            if (todayRecord) {
+                updateTodayStatus(todayDate, todayRecord.checkIn, todayRecord.checkOut, todayRecord.workHours);
+            }
+        }
+        
+        // 초기화
+        loadSettings();
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // 5분마다 자동으로 기록 새로고침
+        setInterval(() => {
+            if (userData.name && userData.sheetUrl) {
+                loadRecords();
+            }
+        }, 300000);
+        
+        // 수정 모달 열기
+        function openEditModal(record) {
+            document.getElementById('editDate').value = record.date;
+            document.getElementById('editCheckIn').value = record.checkIn || '';
+            document.getElementById('editCheckOut').value = record.checkOut || '';
+            document.getElementById('editModal').classList.add('active');
+        }
+        
+        // 수정 모달 닫기
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+        
+        // 수정 저장
+        async function saveEdit() {
+            const date = document.getElementById('editDate').value;
+            const checkIn = document.getElementById('editCheckIn').value;
+            const checkOut = document.getElementById('editCheckOut').value;
+            
+            if (!checkIn) {
+                alert('출근 시간을 입력해주세요!');
+                return;
+            }
+            
+            const workHours = calculateWorkHours(checkIn, checkOut);
+            
+            try {
+                await fetch(userData.sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userName: userData.name,
+                        date: date,
+                        checkIn: checkIn,
+                        checkOut: checkOut,
+                        workHours: workHours
+                    })
+                });
+                
+                alert('수정이 완료되었습니다!');
+                closeEditModal();
+                
+                // 기록 새로고침
+                setTimeout(loadRecords, 1000);
+                
+                // 오늘 날짜면 상태도 업데이트
+                const today = formatDate(new Date());
+                if (date === today) {
+                    updateTodayStatus(date, checkIn, checkOut, workHours);
+                }
+            } catch (error) {
+                alert('수정 중 오류가 발생했습니다.');
+                console.error(error);
+            }
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>
