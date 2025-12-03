@@ -223,7 +223,6 @@
         
         .table-container {
             margin-top: 20px;
-            overflow-x: auto;
         }
         
         .records-table {
@@ -234,33 +233,32 @@
         
         .records-table th {
             background: #f5f5f5;
-            padding: 10px 4px;
+            padding: 12px 8px;
             text-align: center;
             font-weight: bold;
             border-bottom: 2px solid #ddd;
-            font-size: 13px;
+            font-size: 14px;
             word-break: keep-all;
         }
         
         .records-table td {
-            padding: 10px 4px;
+            padding: 12px 8px;
             border-bottom: 1px solid #eee;
             text-align: center;
-            font-size: 12px;
-            word-break: break-all;
+            font-size: 13px;
+            word-break: break-word;
         }
         
         .records-table tr:hover {
             background: #f9f9f9;
         }
         
-        /* 날짜 열 */
+        /* 열 너비 조정 */
         .records-table th:nth-child(1),
         .records-table td:nth-child(1) {
-            width: 30%;
+            width: 25%;
         }
         
-        /* 출근/퇴근 열 */
         .records-table th:nth-child(2),
         .records-table td:nth-child(2),
         .records-table th:nth-child(3),
@@ -268,10 +266,15 @@
             width: 15%;
         }
         
-        /* 근무시간 열 */
         .records-table th:nth-child(4),
         .records-table td:nth-child(4) {
+            width: 25%;
+        }
+        
+        .records-table th:nth-child(5),
+        .records-table td:nth-child(5) {
             width: 20%;
+        } 20%;
         }
         
         /* 수정 버튼 열 */
